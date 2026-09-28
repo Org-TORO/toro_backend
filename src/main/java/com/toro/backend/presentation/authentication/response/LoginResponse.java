@@ -1,7 +1,8 @@
 package com.toro.backend.presentation.authentication.response;
 
 public record LoginResponse(
-    String accessToken
+    String accessToken,
+    String refreshToken
 ) {
 
 }

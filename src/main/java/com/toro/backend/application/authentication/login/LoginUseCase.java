@@ -43,8 +43,8 @@ public class LoginUseCase {
         String refreshToken = jwtService.generateRefreshToken();
         String hashedRefreshToken = jwtService.hashRefreshToken(refreshToken);
 
-        // Create / rotate login session
-        createLoginSession(user, hashedRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
+        // Create once, then rotate the tokens on the existing login session.
+        saveLoginSession(user, hashedRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
 
         
         return new LoginResult(
@@ -56,7 +56,7 @@ public class LoginUseCase {
 
 
     // PRIVATE METHODS
-    private LoginSession createLoginSession(
+    private LoginSession saveLoginSession(
             User user,
             String hashedRefreshToken,
             Instant accessExpiresAt,
@@ -64,33 +64,22 @@ public class LoginUseCase {
     ) {
 
         LoginSession loginSession = loginSessionRepository
-                .findFirstByUserIdAndRevokedReasonIsNull(user.getId())
-                .map(previousSession -> {
+            .findFirstByUserId(user.getId())
+            .orElseGet(() -> {
+                LoginSession newSession = new LoginSession();
+                
+                newSession.setUser(user);
 
-                        previousSession.setHashedRefreshToken(hashedRefreshToken);
-                        previousSession.setAccessExpiresAt(accessExpiresAt);
-                        previousSession.setRefreshExpiresAt(refreshExpiresAt);
+                return newSession;
+            });
 
-                        loginSessionRepository.save(previousSession);
+        loginSession.setHashedRefreshToken(hashedRefreshToken);
+        loginSession.setAccessExpiresAt(accessExpiresAt);
+        loginSession.setRefreshExpiresAt(refreshExpiresAt);
+        loginSession.setRevokedReason(null);
+        loginSession.setRevokedAt(null);
 
-                        return previousSession;
-                })
-                .orElseGet(() -> {
-                        LoginSession newSession = new LoginSession();
-                        
-                        newSession.setUser(user);
-                        newSession.setHashedRefreshToken(hashedRefreshToken);
-                        newSession.setAccessExpiresAt(accessExpiresAt);
-                        newSession.setRefreshExpiresAt(refreshExpiresAt);
-                        newSession.setRevokedReason(null);
-                        newSession.setRevokedAt(null);
-
-                        loginSessionRepository.save(newSession);
-
-                        return newSession;
-                });
-
-                return loginSession;
+        return loginSessionRepository.save(loginSession);
     }
 
 }

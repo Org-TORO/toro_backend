@@ -47,23 +47,13 @@ public class AuthenticationController {
     ) {
 
         LoginResult result = loginUseCase.execute(request);
-
-        ResponseCookie refreshTokenCookie = ResponseCookie
-            .from("refreshToken", result.refreshToken())
-            .httpOnly(true)
-            .secure(false) 
-            .sameSite(SameSite.LAX.toString())
-            .path("/api/auth")
-            .maxAge(Duration.between(Instant.now(), result.refreshTokenExpiresAt()))
-            .build();
         
         return ResponseEntity
             .ok()
-            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(
                 SuccessResponse.success(
                     "Login successfully",
-                    new LoginResponse(result.accessToken())
+                    new LoginResponse(result.accessToken(), result.refreshToken())
                 )
             );
     }

@@ -8,7 +8,7 @@ import com.toro.backend.infrastructure.database.models.LoginSession;
 
 public interface LoginSessionRepository extends JpaRepository<LoginSession, Long> {
 
-    Optional<LoginSession> findFirstByUserIdAndRevokedReasonIsNull(Long userId);
+    Optional<LoginSession> findFirstByUserId(Long userId);
 
     Optional<LoginSession> findByHashedRefreshToken(String hashedRefreshToken);
 
