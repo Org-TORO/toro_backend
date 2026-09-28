@@ -36,7 +36,9 @@ public class ApiSecurityConfig {
                 .cors(co -> co.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login-admin").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/bootstrap-token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh-token").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs*/**",
                                 "/swagger-ui.html",

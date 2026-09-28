@@ -1,12 +1,19 @@
 package com.toro.backend.infrastructure.database.models;
 
 import java.time.Instant;
+import java.util.List;
 
+import com.toro.backend.infrastructure.database.enums.AppRole;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -38,12 +45,27 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "status", nullable = false)
-    private String status; 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive; 
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AppRole role;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+
+    // Relationships
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LoginSession> loginSessions;
+
+    @OneToMany(
+        mappedBy = "user",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<OrganizationMember> organizationMembers;
 
 
     @PrePersist
