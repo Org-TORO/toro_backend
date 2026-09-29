@@ -68,6 +68,13 @@ public class Organization {
     )
     private List<OrganizationMember> organizationMembers;
 
+    @OneToMany(
+        mappedBy = "organization",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<SourceLedger> sourceLedgers;
+
 
     @PrePersist
     protected void onCreate() {

@@ -1,10 +1,12 @@
 package com.toro.backend.infrastructure.database.models;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.toro.backend.infrastructure.database.enums.OrganizationDepartment;
 import com.toro.backend.infrastructure.database.enums.OrganizationRole;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -51,7 +54,7 @@ public class OrganizationMember {
 
 
     // Relationships
-    
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -59,6 +62,20 @@ public class OrganizationMember {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
+
+    @OneToMany(
+        mappedBy = "organizationMember",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<SourceLedgerAssignment> sourceLedgerAssignments;
+
+    @OneToMany(
+        mappedBy = "organizationMember",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<SourceLedgerSignature> sourceLedgerSignatures;
 
     
     @PrePersist
