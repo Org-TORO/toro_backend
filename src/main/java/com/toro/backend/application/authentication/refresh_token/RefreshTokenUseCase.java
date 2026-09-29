@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.enums.RevokedReason;
 import com.toro.backend.infrastructure.database.models.LoginSession;
+import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;
 import com.toro.backend.infrastructure.exception.InvalidRefreshTokenException;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
@@ -53,10 +54,11 @@ public class RefreshTokenUseCase {
         Instant refreshTokenExpiresAt =
             jwtService.generateRefreshTokenExpiresAt();
 
+        User user = currentLoginSession.getUser();
 
         String newAccessToken =
             jwtService.generateAccessToken(
-                currentLoginSession.getUser(),
+                user,
                 now,
                 accessTokenExpiresAt
             );
@@ -74,7 +76,8 @@ public class RefreshTokenUseCase {
         return new RefreshTokenResult(
                 newAccessToken,
                 newRefreshToken,
-                refreshTokenExpiresAt
+                refreshTokenExpiresAt,
+                RefreshTokenResult.RefreshTokenUserResult.from(user)
         );
     }
 

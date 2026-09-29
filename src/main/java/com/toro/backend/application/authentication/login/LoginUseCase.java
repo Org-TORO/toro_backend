@@ -50,7 +50,8 @@ public class LoginUseCase {
         return new LoginResult(
                 accessToken,
                 refreshToken,
-                refreshTokenExpiresAt
+                refreshTokenExpiresAt,
+                LoginResult.LoginUserResult.from(user)
         );
     }
 

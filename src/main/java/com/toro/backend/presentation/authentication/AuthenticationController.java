@@ -54,7 +54,11 @@ public class AuthenticationController {
             .body(
                 SuccessResponse.success(
                     "Login successfully",
-                    new LoginResponse(result.accessToken(), result.refreshToken())
+                    new LoginResponse(
+                        result.accessToken(),
+                        result.refreshToken(),
+                        LoginResponse.LoginUserResponse.from(result.user())
+                    )
                 )
             );
     }
@@ -102,7 +106,11 @@ public class AuthenticationController {
             .body(
                 SuccessResponse.success(
                     "Refresh token successfully",
-                    new RefreshTokenResponse(result.accessToken(), result.refreshToken())
+                    new RefreshTokenResponse(
+                        result.accessToken(),
+                        result.refreshToken(),
+                        RefreshTokenResponse.RefreshTokenUserResponse.from(result.user())
+                    )
                 )
             );
     }
