@@ -1,6 +1,6 @@
-# Login Use Case API
+# Login API
 
-Authenticate a user with email and password, then issue a new access token and refresh token.
+Authenticate a user with email and password. On success, the API returns a JWT access token and an opaque refresh token.
 
 ## Endpoint
 
@@ -14,7 +14,7 @@ Default local base URL:
 http://localhost:8080
 ```
 
-## Authentication
+## Access
 
 This endpoint is public. Do not send an `Authorization` header.
 
@@ -43,8 +43,6 @@ Example:
 
 ## Success Response
 
-Status:
-
 ```http
 200 OK
 ```
@@ -56,7 +54,14 @@ Body:
   "message": "Login successfully",
   "data": {
     "accessToken": "<jwt-access-token>",
-    "refreshToken": "<refresh-token>"
+    "refreshToken": "<refresh-token>",
+    "user": {
+      "id": 1,
+      "fullName": "Example User",
+      "email": "user@example.com",
+      "phoneNumber": "0900000000",
+      "role": "ADMIN"
+    }
   },
   "timestamp": "2026-09-29T09:00:00Z"
 }
@@ -69,6 +74,12 @@ Body:
 | `message` | `string` | Human-readable result message. |
 | `data.accessToken` | `string` | JWT access token. Use it as `Authorization: Bearer <accessToken>` for protected APIs. |
 | `data.refreshToken` | `string` | Opaque refresh token used to request new tokens. |
+| `data.user` | `object` | Authenticated user information. |
+| `data.user.id` | `number` | Authenticated user ID. |
+| `data.user.fullName` | `string` | Authenticated user's full name. |
+| `data.user.email` | `string` | Authenticated user's email address. |
+| `data.user.phoneNumber` | `string` | Authenticated user's phone number. |
+| `data.user.role` | `string` | Authenticated user's application role. |
 | `timestamp` | `string` | Response timestamp in ISO-8601 format. |
 
 ## Error Responses
@@ -76,8 +87,6 @@ Body:
 ### Invalid Request Body
 
 Returned when required fields are blank or the email is not a valid email address.
-
-Status:
 
 ```http
 400 Bad Request
@@ -109,8 +118,6 @@ Possible validation messages:
 
 Returned when the email does not exist or the password does not match.
 
-Status:
-
 ```http
 400 Bad Request
 ```
@@ -126,15 +133,28 @@ Body:
 }
 ```
 
+## Processing Flow
+
+1. Validate the request body with Jakarta Bean Validation.
+2. Find the user by `email`.
+3. Compare the submitted password with the stored password hash.
+4. Generate the access token expiry and refresh token expiry.
+5. Generate a signed JWT access token.
+6. Generate an opaque refresh token.
+7. Hash the refresh token with SHA-256 before storing it.
+8. Create or update the user's login session.
+9. Return the raw access token, raw refresh token, and authenticated user information to the client.
+
 ## Token Behavior
 
 On successful login, the backend:
 
-1. Generates a JWT access token.
-2. Generates an opaque refresh token.
-3. Stores only the SHA-256 hash of the refresh token in the login session table.
-4. Creates a login session for the user if one does not exist.
-5. Rotates the existing login session tokens if the user already has a login session.
+| Token | Format | Usage |
+| --- | --- | --- |
+| Access token | Signed JWT | Sent as `Authorization: Bearer <accessToken>` to protected APIs. |
+| Refresh token | Opaque random string | Sent to refresh/bootstrap token APIs when the access token expires. |
+
+The backend stores only the SHA-256 hash of the refresh token. If the user already has a login session, login rotates the tokens on the existing session instead of creating multiple active login session records.
 
 Default token lifetime in the `dev` profile:
 
@@ -154,6 +174,13 @@ curl -X POST http://localhost:8080/api/auth/login \
     "password": "password123"
   }'
 ```
+
+## Notes
+
+- The response body returns the refresh token directly. This endpoint does not set the refresh token cookie.
+- Invalid email and invalid password return the same error message: `Invalid username or password.`
+- A successful login clears `revokedReason` and `revokedAt` on the login session.
+- The authenticated user payload does not include `passwordHash`.
 
 ## Related Source Files
 
