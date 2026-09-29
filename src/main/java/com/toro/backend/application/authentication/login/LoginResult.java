@@ -3,6 +3,7 @@ package com.toro.backend.application.authentication.login;
 import java.time.Instant;
 
 import com.toro.backend.infrastructure.database.enums.AppRole;
+import com.toro.backend.infrastructure.database.enums.OrganizationRole;
 
 public record LoginResult(
     String accessToken,
@@ -16,7 +17,9 @@ public record LoginResult(
         String fullName,
         String email,
         String phoneNumber,
-        AppRole role
+        AppRole role,
+        OrganizationRole organizationRole,
+        Long organizationId
     ) {
 
     }

@@ -3,6 +3,7 @@ package com.toro.backend.infrastructure.mapper.authentication;
 import java.time.Instant;
 
 import com.toro.backend.application.authentication.login.LoginResult;
+import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.presentation.authentication.response.LoginResponse;
 
@@ -15,23 +16,29 @@ public final class LoginMapper {
         String accessToken,
         String refreshToken,
         Instant refreshTokenExpiresAt,
-        User user
+        User user,
+        OrganizationMember organizationMember
     ) {
         return new LoginResult(
             accessToken,
             refreshToken,
             refreshTokenExpiresAt,
-            toUserResult(user)
+            toUserResult(user, organizationMember)
         );
     }
 
-    public static LoginResult.LoginUserResult toUserResult(User user) {
+    public static LoginResult.LoginUserResult toUserResult(
+        User user,
+        OrganizationMember organizationMember
+    ) {
         return new LoginResult.LoginUserResult(
             user.getId(),
             user.getFullName(),
             user.getEmail(),
             user.getPhoneNumber(),
-            user.getRole()
+            user.getRole(),
+            organizationMember == null ? null : organizationMember.getOrganizationRole(),
+            organizationMember == null ? null : organizationMember.getOrganization().getId()
         );
     }
 
@@ -49,7 +56,9 @@ public final class LoginMapper {
             user.fullName(),
             user.email(),
             user.phoneNumber(),
-            user.role()
+            user.role(),
+            user.organizationRole(),
+            user.organizationId()
         );
     }
 

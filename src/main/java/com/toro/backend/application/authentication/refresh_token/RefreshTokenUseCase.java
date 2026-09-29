@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.enums.RevokedReason;
 import com.toro.backend.infrastructure.database.models.LoginSession;
+import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;
+import com.toro.backend.infrastructure.database.repository.OrganizationMemberRepository;
 import com.toro.backend.infrastructure.exception.InvalidRefreshTokenException;
 import com.toro.backend.infrastructure.mapper.authentication.RefreshTokenMapper;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
@@ -20,6 +22,7 @@ public class RefreshTokenUseCase {
 
     private final RefreshTokenValidator refreshTokenValidator;
     private final LoginSessionRepository loginSessionRepository;
+    private final OrganizationMemberRepository organizationMemberRepository;
     private final JwtService jwtService;
 
 
@@ -74,11 +77,14 @@ public class RefreshTokenUseCase {
 
         loginSessionRepository.save(currentLoginSession);
 
+        OrganizationMember organizationMember = findOrganizationMember(user);
+
         return RefreshTokenMapper.toResult(
             newAccessToken,
             newRefreshToken,
             refreshTokenExpiresAt,
-            user
+            user,
+            organizationMember
         );
     }
 
@@ -94,6 +100,12 @@ public class RefreshTokenUseCase {
         }
 
         return false;
+    }
+
+    private OrganizationMember findOrganizationMember(User user) {
+        return organizationMemberRepository
+            .findFirstByUserIdOrderByIdAsc(user.getId())
+            .orElse(null);
     }
 
 }

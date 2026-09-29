@@ -5,8 +5,10 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.models.LoginSession;
+import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;
+import com.toro.backend.infrastructure.database.repository.OrganizationMemberRepository;
 import com.toro.backend.infrastructure.mapper.authentication.LoginMapper;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
@@ -21,6 +23,7 @@ public class LoginUseCase {
     private final LoginValidator validator;
     private final JwtService jwtService;
     private final LoginSessionRepository loginSessionRepository;
+    private final OrganizationMemberRepository organizationMemberRepository;
 
 
     @Transactional
@@ -47,12 +50,14 @@ public class LoginUseCase {
         // Create once, then rotate the tokens on the existing login session.
         saveLoginSession(user, hashedRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
 
+        OrganizationMember organizationMember = findOrganizationMember(user);
         
         return LoginMapper.toResult(
             accessToken,
             refreshToken,
             refreshTokenExpiresAt,
-            user
+            user,
+            organizationMember
         );
     }
 
@@ -82,6 +87,12 @@ public class LoginUseCase {
         loginSession.setRevokedAt(null);
 
         return loginSessionRepository.save(loginSession);
+    }
+
+    private OrganizationMember findOrganizationMember(User user) {
+        return organizationMemberRepository
+            .findFirstByUserIdOrderByIdAsc(user.getId())
+            .orElse(null);
     }
 
 }

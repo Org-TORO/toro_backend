@@ -3,6 +3,7 @@ package com.toro.backend.infrastructure.mapper.authentication;
 import java.time.Instant;
 
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenResult;
+import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.presentation.authentication.response.RefreshTokenResponse;
 
@@ -15,23 +16,29 @@ public final class RefreshTokenMapper {
         String accessToken,
         String refreshToken,
         Instant refreshTokenExpiresAt,
-        User user
+        User user,
+        OrganizationMember organizationMember
     ) {
         return new RefreshTokenResult(
             accessToken,
             refreshToken,
             refreshTokenExpiresAt,
-            toUserResult(user)
+            toUserResult(user, organizationMember)
         );
     }
 
-    public static RefreshTokenResult.RefreshTokenUserResult toUserResult(User user) {
+    public static RefreshTokenResult.RefreshTokenUserResult toUserResult(
+        User user,
+        OrganizationMember organizationMember
+    ) {
         return new RefreshTokenResult.RefreshTokenUserResult(
             user.getId(),
             user.getFullName(),
             user.getEmail(),
             user.getPhoneNumber(),
-            user.getRole()
+            user.getRole(),
+            organizationMember == null ? null : organizationMember.getOrganizationRole(),
+            organizationMember == null ? null : organizationMember.getOrganization().getId()
         );
     }
 
@@ -51,7 +58,9 @@ public final class RefreshTokenMapper {
             user.fullName(),
             user.email(),
             user.phoneNumber(),
-            user.role()
+            user.role(),
+            user.organizationRole(),
+            user.organizationId()
         );
     }
 

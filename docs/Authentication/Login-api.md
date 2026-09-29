@@ -60,7 +60,9 @@ Body:
       "fullName": "Example User",
       "email": "user@example.com",
       "phoneNumber": "0900000000",
-      "role": "ADMIN"
+      "role": "ADMIN",
+      "organizationRole": null,
+      "organizationId": null
     }
   },
   "timestamp": "2026-09-29T09:00:00Z"
@@ -80,6 +82,8 @@ Body:
 | `data.user.email` | `string` | Authenticated user's email address. |
 | `data.user.phoneNumber` | `string` | Authenticated user's phone number. |
 | `data.user.role` | `string` | Authenticated user's application role. |
+| `data.user.organizationRole` | `string \| null` | Authenticated user's organization role, or `null` for admin users. |
+| `data.user.organizationId` | `number \| null` | Authenticated user's organization ID, or `null` for admin users. |
 | `timestamp` | `string` | Response timestamp in ISO-8601 format. |
 
 ## Error Responses
