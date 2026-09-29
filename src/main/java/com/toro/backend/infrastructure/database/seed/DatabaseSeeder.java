@@ -16,9 +16,11 @@ import com.toro.backend.infrastructure.database.enums.OrganizationType;
 import com.toro.backend.infrastructure.database.models.Organization;
 import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.models.User;
+import com.toro.backend.infrastructure.database.models.Vessel;
 import com.toro.backend.infrastructure.database.repository.OrganizationMemberRepository;
 import com.toro.backend.infrastructure.database.repository.OrganizationRepository;
 import com.toro.backend.infrastructure.database.repository.UserRepository;
+import com.toro.backend.infrastructure.database.repository.VesselRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class DatabaseSeeder implements ApplicationRunner {
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     private final OrganizationMemberRepository organizationMemberRepository;
+    private final VesselRepository vesselRepository;
 
     
     @Override
@@ -41,6 +44,7 @@ public class DatabaseSeeder implements ApplicationRunner {
         cleanUp();
         seedAccounts();
         seedOrganization();
+        seedVessels();
 
     }
 
@@ -171,6 +175,56 @@ public class DatabaseSeeder implements ApplicationRunner {
             System.out.println("Organizations seeded successfully.");
         } catch (Exception ex) {
             System.err.println("Error seeding organizations: " + ex.getMessage());
+        }
+
+    }
+
+    private void seedVessels() {
+
+        try {
+            List<Vessel> vessels = List.of(
+                Vessel.builder()
+                    .registrationNumber("VN-BD-0001")
+                    .fishingMethod("Longline")
+                    .captainName("Nguyen Van An")
+                    .fishingLicense("FL-BD-0001")
+                    .imoNumber("IMO1000001")
+                    .build(),
+                Vessel.builder()
+                    .registrationNumber("VN-KH-0002")
+                    .fishingMethod("Purse seine")
+                    .captainName("Tran Minh Bao")
+                    .fishingLicense("FL-KH-0002")
+                    .imoNumber("IMO1000002")
+                    .build(),
+                Vessel.builder()
+                    .registrationNumber("VN-QN-0003")
+                    .fishingMethod("Gillnet")
+                    .captainName("Le Quoc Cuong")
+                    .fishingLicense("FL-QN-0003")
+                    .imoNumber("IMO1000003")
+                    .build(),
+                Vessel.builder()
+                    .registrationNumber("VN-BR-0004")
+                    .fishingMethod("Trawl")
+                    .captainName("Pham Duc Duy")
+                    .fishingLicense("FL-BR-0004")
+                    .imoNumber("IMO1000004")
+                    .build(),
+                Vessel.builder()
+                    .registrationNumber("VN-CT-0005")
+                    .fishingMethod("Handline")
+                    .captainName("Hoang Hai Nam")
+                    .fishingLicense("FL-CT-0005")
+                    .imoNumber("IMO1000005")
+                    .build()
+            );
+
+            vesselRepository.saveAll(vessels);
+
+            System.out.println("Vessels seeded successfully.");
+        } catch (Exception ex) {
+            System.err.println("Error seeding vessels: " + ex.getMessage());
         }
 
     }
