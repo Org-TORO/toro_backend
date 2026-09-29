@@ -57,8 +57,8 @@ public class OrganizationMember {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "organization_branch_id", nullable = false)
-    private OrganizationBranch organizationBranch;
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
 
     
     @PrePersist

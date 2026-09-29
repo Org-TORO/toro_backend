@@ -18,15 +18,15 @@ public class AddOrganizationMemberUseCase {
     private final OrganizationMemberRepository organizationMemberRepository;
 
     @Transactional
-    public AddOrganizationMemberResult execute(Long organizationBranchId, AddOrganizationMemberRequest request) {
+    public AddOrganizationMemberResult execute(Long organizationId, AddOrganizationMemberRequest request) {
         AddOrganizationMemberValidationResult validationResult = addOrganizationMemberValidator.validate(
-            organizationBranchId,
+            organizationId,
             request.userId()
         );
 
         OrganizationMember organizationMember = AddOrganizationMemberMapper.toModel(
             request,
-            validationResult.organizationBranch(),
+            validationResult.organization(),
             validationResult.user()
         );
 

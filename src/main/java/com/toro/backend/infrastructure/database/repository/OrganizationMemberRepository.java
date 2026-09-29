@@ -6,6 +6,6 @@ import com.toro.backend.infrastructure.database.models.OrganizationMember;
 
 public interface OrganizationMemberRepository extends JpaRepository<OrganizationMember, Long> {
 
-    boolean existsByUserIdAndOrganizationBranchId(Long userId, Long organizationBranchId);
+    boolean existsByUserIdAndOrganizationId(Long userId, Long organizationId);
 
 }

@@ -66,7 +66,7 @@ public class Organization {
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
-    private List<OrganizationBranch> branches;
+    private List<OrganizationMember> organizationMembers;
 
 
     @PrePersist

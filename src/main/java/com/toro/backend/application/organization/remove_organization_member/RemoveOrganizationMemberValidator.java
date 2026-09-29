@@ -17,7 +17,7 @@ public class RemoveOrganizationMemberValidator {
 
     public OrganizationMember validate(Long memberId) {
         return organizationMemberRepository.findById(memberId)
-            .orElseThrow(() -> new BusinessValidationException("Organization member not found in organization branch."));
+            .orElseThrow(() -> new BusinessValidationException("Organization member not found in organization."));
     }
 
 }

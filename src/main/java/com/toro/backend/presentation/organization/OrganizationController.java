@@ -14,49 +14,34 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.application.organization.create_organization.CreateOrganizationUseCase;
-import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchUseCase;
 import com.toro.backend.application.organization.add_organization_member.AddOrganizationMemberUseCase;
 import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
-import com.toro.backend.application.organization.delete_organization_branch.DeleteOrganizationBranchUseCase;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
-import com.toro.backend.application.organization.get_organization_branch.GetOrganizationBranchUseCase;
-import com.toro.backend.application.organization.get_organization_branches.GetOrganizationBranchesUseCase;
 import com.toro.backend.application.organization.get_organization_members.GetOrganizationMembersUseCase;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsUseCase;
 import com.toro.backend.application.organization.remove_organization_member.RemoveOrganizationMemberUseCase;
 import com.toro.backend.application.organization.search_organizations.SearchOrganizationsUseCase;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
-import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchUseCase;
 import com.toro.backend.application.organization.update_organization_member.UpdateOrganizationMemberUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.infrastructure.mapper.organization.AddOrganizationMemberMapper;
-import com.toro.backend.infrastructure.mapper.organization.CreateOrganizationBranchMapper;
 import com.toro.backend.infrastructure.mapper.organization.CreateOrganizationMapper;
-import com.toro.backend.infrastructure.mapper.organization.GetOrganizationBranchMapper;
-import com.toro.backend.infrastructure.mapper.organization.GetOrganizationBranchesMapper;
 import com.toro.backend.infrastructure.mapper.organization.GetOrganizationMapper;
 import com.toro.backend.infrastructure.mapper.organization.GetOrganizationMembersMapper;
 import com.toro.backend.infrastructure.mapper.organization.GetOrganizationsMapper;
 import com.toro.backend.infrastructure.mapper.organization.SearchOrganizationsMapper;
-import com.toro.backend.infrastructure.mapper.organization.UpdateOrganizationBranchMapper;
 import com.toro.backend.infrastructure.mapper.organization.UpdateOrganizationMapper;
 import com.toro.backend.infrastructure.mapper.organization.UpdateOrganizationMemberMapper;
 import com.toro.backend.presentation.organization.request.AddOrganizationMemberRequest;
-import com.toro.backend.presentation.organization.request.CreateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
-import com.toro.backend.presentation.organization.request.UpdateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationMemberRequest;
 import com.toro.backend.presentation.organization.request.UpdateOrganizationRequest;
 import com.toro.backend.presentation.organization.response.AddOrganizationMemberResponse;
-import com.toro.backend.presentation.organization.response.CreateOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.CreateOrganizationResponse;
-import com.toro.backend.presentation.organization.response.GetOrganizationBranchResponse;
-import com.toro.backend.presentation.organization.response.GetOrganizationBranchesResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationMembersResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationResponse;
 import com.toro.backend.presentation.organization.response.GetOrganizationsResponse;
 import com.toro.backend.presentation.organization.response.SearchOrganizationsResponse;
-import com.toro.backend.presentation.organization.response.UpdateOrganizationBranchResponse;
 import com.toro.backend.presentation.organization.response.UpdateOrganizationMemberResponse;
 import com.toro.backend.presentation.organization.response.UpdateOrganizationResponse;
 
@@ -75,12 +60,6 @@ public class OrganizationController {
     private final CreateOrganizationUseCase createOrganizationUseCase;
     private final UpdateOrganizationUseCase updateOrganizationUseCase;
     private final DeleteOrganizationUseCase deleteOrganizationUseCase;
-
-    private final GetOrganizationBranchesUseCase getOrganizationBranchesUseCase;
-    private final GetOrganizationBranchUseCase getOrganizationBranchUseCase;
-    private final CreateOrganizationBranchUseCase createOrganizationBranchUseCase;
-    private final UpdateOrganizationBranchUseCase updateOrganizationBranchUseCase;
-    private final DeleteOrganizationBranchUseCase deleteOrganizationBranchUseCase;
 
     private final GetOrganizationMembersUseCase getOrganizationMembersUseCase;
     private final AddOrganizationMemberUseCase addOrganizationMemberUseCase;
@@ -172,93 +151,14 @@ public class OrganizationController {
         );
     }
 
-
-    // ================================== Organization Branch =============================================
-    @GetMapping("/get-organization-branches")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<List<GetOrganizationBranchesResponse>>> getOrganizationBranches(
-        @RequestParam("organization_id")
-        @NotNull(message = "Organization id is required") Long organizationId
-    ) {
-        List<GetOrganizationBranchesResponse> response = getOrganizationBranchesUseCase.execute(organizationId)
-            .stream()
-            .map(GetOrganizationBranchesMapper::toResponse)
-            .toList();
-
-        return ResponseEntity.ok(
-            SuccessResponse.success("Get organization branches successfully", response)
-        );
-    }
-
-    @GetMapping("/get-organization-branch")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<GetOrganizationBranchResponse>> getOrganizationBranch(
-        @RequestParam("organization_branch_id")
-        @NotNull(message = "Organization branch id is required") Long organizationBranchId
-    ) {
-        GetOrganizationBranchResponse response = GetOrganizationBranchMapper.toResponse(
-            getOrganizationBranchUseCase.execute(organizationBranchId)
-        );
-
-        return ResponseEntity.ok(
-            SuccessResponse.success("Get organization branch successfully", response)
-        );
-    }
-
-    @PostMapping("/create-organization-branch")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<CreateOrganizationBranchResponse>> createOrganizationBranch(
-        @RequestParam("organization_id")
-        @NotNull(message = "Organization id is required") Long organizationId,
-        @Valid @RequestBody CreateOrganizationBranchRequest request
-    ) {
-        CreateOrganizationBranchResponse response = CreateOrganizationBranchMapper.toResponse(
-            createOrganizationBranchUseCase.execute(organizationId, request)
-        );
-
-        return ResponseEntity.ok(
-            SuccessResponse.success("Create organization branch successfully", response)
-        );
-    }
-
-    @PutMapping("/update-organization-branch")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<UpdateOrganizationBranchResponse>> updateOrganizationBranch(
-        @RequestParam("organization_branch_id")
-        @NotNull(message = "Organization branch id is required") Long organizationBranchId,
-        @Valid @RequestBody UpdateOrganizationBranchRequest request
-    ) {
-        UpdateOrganizationBranchResponse response = UpdateOrganizationBranchMapper.toResponse(
-            updateOrganizationBranchUseCase.execute(organizationBranchId, request)
-        );
-
-        return ResponseEntity.ok(
-            SuccessResponse.success("Update organization branch successfully", response)
-        );
-    }
-
-    @DeleteMapping("/delete-organization-branch")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<Void>> deleteOrganizationBranch(
-        @RequestParam("organization_branch_id")
-        @NotNull(message = "Organization branch id is required") Long organizationBranchId
-    ) {
-        deleteOrganizationBranchUseCase.execute(organizationBranchId);
-
-        return ResponseEntity.ok(
-            SuccessResponse.successMessage("Delete organization branch successfully")
-        );
-    }
-    
-
     // ============================== Organization Member =========================================
     @GetMapping("/get-organization-members")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<List<GetOrganizationMembersResponse>>> getOrganizationMembers(
-        @RequestParam("organization_branch_id")
-        @NotNull(message = "Organization branch id is required") Long organizationBranchId
+        @RequestParam("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId
     ) {
-        List<GetOrganizationMembersResponse> response = getOrganizationMembersUseCase.execute(organizationBranchId)
+        List<GetOrganizationMembersResponse> response = getOrganizationMembersUseCase.execute(organizationId)
             .stream()
             .map(GetOrganizationMembersMapper::toResponse)
             .toList();
@@ -271,12 +171,12 @@ public class OrganizationController {
     @PostMapping("/add-organization-member")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<AddOrganizationMemberResponse>> addOrganizationMember(
-        @RequestParam("organization_branch_id")
-        @NotNull(message = "Organization branch id is required") Long organizationBranchId,
+        @RequestParam("organization_id")
+        @NotNull(message = "Organization id is required") Long organizationId,
         @Valid @RequestBody AddOrganizationMemberRequest request
     ) {
         AddOrganizationMemberResponse response = AddOrganizationMemberMapper.toResponse(
-            addOrganizationMemberUseCase.execute(organizationBranchId, request)
+            addOrganizationMemberUseCase.execute(organizationId, request)
         );
 
         return ResponseEntity.ok(

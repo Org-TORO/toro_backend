@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.toro.backend.infrastructure.database.models.OrganizationBranch;
+import com.toro.backend.infrastructure.database.models.Organization;
 import com.toro.backend.infrastructure.mapper.organization.GetOrganizationMembersMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,10 @@ public class GetOrganizationMembersUseCase {
     private final GetOrganizationMembersValidator getOrganizationMembersValidator;
 
     @Transactional(readOnly = true)
-    public List<GetOrganizationMembersResult> execute(Long organizationBranchId) {
-        OrganizationBranch organizationBranch = getOrganizationMembersValidator.validate(organizationBranchId);
+    public List<GetOrganizationMembersResult> execute(Long organizationId) {
+        Organization organization = getOrganizationMembersValidator.validate(organizationId);
 
-        return organizationBranch.getOrganizationMembers()
+        return organization.getOrganizationMembers()
             .stream()
             .map(GetOrganizationMembersMapper::toResult)
             .toList();

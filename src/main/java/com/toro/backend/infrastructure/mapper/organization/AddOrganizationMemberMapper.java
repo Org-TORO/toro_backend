@@ -3,7 +3,7 @@ package com.toro.backend.infrastructure.mapper.organization;
 import com.toro.backend.application.organization.add_organization_member.AddOrganizationMemberResult;
 import com.toro.backend.infrastructure.database.enums.OrganizationDepartment;
 import com.toro.backend.infrastructure.database.enums.OrganizationRole;
-import com.toro.backend.infrastructure.database.models.OrganizationBranch;
+import com.toro.backend.infrastructure.database.models.Organization;
 import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.presentation.organization.request.AddOrganizationMemberRequest;
@@ -16,12 +16,12 @@ public final class AddOrganizationMemberMapper {
 
     public static OrganizationMember toModel(
         AddOrganizationMemberRequest request,
-        OrganizationBranch organizationBranch,
+        Organization organization,
         User user
     ) {
         return OrganizationMember.builder()
             .user(user)
-            .organizationBranch(organizationBranch)
+            .organization(organization)
             .organizationRole(OrganizationRole.valueOf(request.organizationRole()))
             .organizationDepartment(OrganizationDepartment.valueOf(request.organizationDepartment()))
             .build();

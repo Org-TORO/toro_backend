@@ -2,10 +2,10 @@ package com.toro.backend.application.organization.add_organization_member;
 
 import org.springframework.stereotype.Component;
 
-import com.toro.backend.infrastructure.database.models.OrganizationBranch;
+import com.toro.backend.infrastructure.database.models.Organization;
 import com.toro.backend.infrastructure.database.models.User;
-import com.toro.backend.infrastructure.database.repository.OrganizationBranchRepository;
 import com.toro.backend.infrastructure.database.repository.OrganizationMemberRepository;
+import com.toro.backend.infrastructure.database.repository.OrganizationRepository;
 import com.toro.backend.infrastructure.database.repository.UserRepository;
 import com.toro.backend.infrastructure.exception.BusinessValidationException;
 
@@ -15,22 +15,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AddOrganizationMemberValidator {
 
-    private final OrganizationBranchRepository organizationBranchRepository;
+    private final OrganizationRepository organizationRepository;
     private final OrganizationMemberRepository organizationMemberRepository;
     private final UserRepository userRepository;
 
-    public AddOrganizationMemberValidationResult validate(Long organizationBranchId, Long userId) {
-        OrganizationBranch organizationBranch = organizationBranchRepository.findById(organizationBranchId)
-            .orElseThrow(() -> new BusinessValidationException("Organization branch not found."));
+    public AddOrganizationMemberValidationResult validate(Long organizationId, Long userId) {
+        Organization organization = organizationRepository.findById(organizationId)
+            .orElseThrow(() -> new BusinessValidationException("Organization not found."));
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessValidationException("User not found."));
 
-        if (organizationMemberRepository.existsByUserIdAndOrganizationBranchId(userId, organizationBranchId)) {
-            throw new BusinessValidationException("User already exists in organization branch.");
+        if (organizationMemberRepository.existsByUserIdAndOrganizationId(userId, organizationId)) {
+            throw new BusinessValidationException("User already exists in organization.");
         }
 
-        return new AddOrganizationMemberValidationResult(organizationBranch, user);
+        return new AddOrganizationMemberValidationResult(organization, user);
     }
 
 }
