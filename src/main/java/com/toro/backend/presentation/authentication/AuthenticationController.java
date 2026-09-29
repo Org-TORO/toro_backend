@@ -11,6 +11,7 @@ import com.toro.backend.application.authentication.refresh_token.RefreshTokenRes
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
+import com.toro.backend.presentation.authentication.request.RefreshTokenRequest;
 import com.toro.backend.presentation.authentication.response.BootstrapTokenResponse;
 import com.toro.backend.presentation.authentication.response.LoginResponse;
 import com.toro.backend.presentation.authentication.response.RefreshTokenResponse;
@@ -91,30 +92,17 @@ public class AuthenticationController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<SuccessResponse<RefreshTokenResponse>> refreshToken(
-        @CookieValue(
-            name = "refreshToken",
-            required = false
-        ) String refreshToken
+        @Valid @RequestBody RefreshTokenRequest request
     ) {
 
-        RefreshTokenResult result = refreshTokenUseCase.execute(refreshToken);
-
-        ResponseCookie refreshTokenCookie = ResponseCookie
-            .from("refreshToken", result.refreshToken())
-            .httpOnly(true)
-            .secure(false) 
-            .sameSite(SameSite.LAX.toString())
-            .path("/api/auth")
-            .maxAge(Duration.between(Instant.now(), result.refreshTokenExpiresAt()))
-            .build();
+        RefreshTokenResult result = refreshTokenUseCase.execute(request.refreshToken());
         
         return ResponseEntity
             .ok()
-            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(
                 SuccessResponse.success(
                     "Refresh token successfully",
-                    new RefreshTokenResponse(result.accessToken())
+                    new RefreshTokenResponse(result.accessToken(), result.refreshToken())
                 )
             );
     }
