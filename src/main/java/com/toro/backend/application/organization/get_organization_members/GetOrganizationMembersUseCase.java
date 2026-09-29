@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toro.backend.infrastructure.database.models.OrganizationBranch;
-import com.toro.backend.infrastructure.database.models.OrganizationMember;
-import com.toro.backend.infrastructure.database.models.User;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationMembersMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,25 +22,8 @@ public class GetOrganizationMembersUseCase {
 
         return organizationBranch.getOrganizationMembers()
             .stream()
-            .map(this::toResult)
+            .map(GetOrganizationMembersMapper::toResult)
             .toList();
-    }
-
-    // PRIVATE METHODS
-    private GetOrganizationMembersResult toResult(OrganizationMember organizationMember) {
-        User user = organizationMember.getUser();
-
-        return new GetOrganizationMembersResult(
-            user.getId(),
-            organizationMember.getId(),
-            user.getFullName(),
-            user.getEmail(),
-            user.getPhoneNumber(),
-            organizationMember.getOrganizationRole(),
-            organizationMember.getOrganizationDepartment(),
-            organizationMember.getCreatedAt(),
-            organizationMember.getUpdatedAt()
-        );
     }
 
 }

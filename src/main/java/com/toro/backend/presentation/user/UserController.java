@@ -4,16 +4,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.toro.backend.application.user.create_user.CreateUserResult;
 import com.toro.backend.application.user.create_user.CreateUserUseCase;
 import com.toro.backend.application.user.delete_user.DeleteUserUseCase;
-import com.toro.backend.application.user.get_user.GetUserResult;
 import com.toro.backend.application.user.get_user.GetUserUseCase;
-import com.toro.backend.application.user.get_users.GetUsersResult;
 import com.toro.backend.application.user.get_users.GetUsersUseCase;
-import com.toro.backend.application.user.update_user.UpdateUserResult;
 import com.toro.backend.application.user.update_user.UpdateUserUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.infrastructure.mapper.user.CreateUserMapper;
+import com.toro.backend.infrastructure.mapper.user.GetUserMapper;
+import com.toro.backend.infrastructure.mapper.user.GetUsersMapper;
+import com.toro.backend.infrastructure.mapper.user.UpdateUserMapper;
 import com.toro.backend.presentation.user.request.CreateUserRequest;
 import com.toro.backend.presentation.user.request.UpdateUserRequest;
 import com.toro.backend.presentation.user.response.CreateUserResponse;
@@ -56,7 +56,7 @@ public class UserController {
     public ResponseEntity<SuccessResponse<List<GetUsersResponse>>> getUsers() {
         List<GetUsersResponse> response = getUsersUseCase.execute()
             .stream()
-            .map(this::toGetUsersResponse)
+            .map(GetUsersMapper::toResponse)
             .toList();
 
         return ResponseEntity.ok(
@@ -70,7 +70,7 @@ public class UserController {
         @RequestParam("user_id") 
         @NotNull(message = "User id is required") Long userId
     ) {
-        GetUserResponse response = toGetUserResponse(getUserUseCase.execute(userId));
+        GetUserResponse response = GetUserMapper.toResponse(getUserUseCase.execute(userId));
 
         return ResponseEntity.ok(
             SuccessResponse.success("Get user successfully", response)
@@ -82,7 +82,7 @@ public class UserController {
     public ResponseEntity<SuccessResponse<CreateUserResponse>> createUser(
         @Valid @RequestBody CreateUserRequest request
     ) {
-        CreateUserResponse response = toCreateUserResponse(createUserUseCase.execute(request));
+        CreateUserResponse response = CreateUserMapper.toResponse(createUserUseCase.execute(request));
 
         return ResponseEntity.ok(
             SuccessResponse.success("Create user successfully", response)
@@ -96,7 +96,7 @@ public class UserController {
         @NotNull(message = "User id is required") Long userId,
         @Valid @RequestBody UpdateUserRequest request
     ) {
-        UpdateUserResponse response = toUpdateUserResponse(updateUserUseCase.execute(userId, request));
+        UpdateUserResponse response = UpdateUserMapper.toResponse(updateUserUseCase.execute(userId, request));
 
         return ResponseEntity.ok(
             SuccessResponse.success("Update user successfully", response)
@@ -115,52 +115,5 @@ public class UserController {
             SuccessResponse.successMessage("Delete user successfully")
         );
     }
-
-
-    // PRIVATE METHODS
-    private GetUsersResponse toGetUsersResponse(GetUsersResult result) {
-        return new GetUsersResponse(
-            result.id(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.isActive(),
-            result.createdAt()
-        );
-    }
-
-    private GetUserResponse toGetUserResponse(GetUserResult result) {
-        return new GetUserResponse(
-            result.id(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.isActive(),
-            result.createdAt()
-        );
-    }
-
-    private CreateUserResponse toCreateUserResponse(CreateUserResult result) {
-        return new CreateUserResponse(
-            result.id(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.isActive(),
-            result.createdAt()
-        );
-    }
-
-    private UpdateUserResponse toUpdateUserResponse(UpdateUserResult result) {
-        return new UpdateUserResponse(
-            result.id(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.isActive(),
-            result.createdAt()
-        );
-    }
-    
 
 }

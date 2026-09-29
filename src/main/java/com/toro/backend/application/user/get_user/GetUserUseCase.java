@@ -3,6 +3,7 @@ package com.toro.backend.application.user.get_user;
 import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.models.User;
+import com.toro.backend.infrastructure.mapper.user.GetUserMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,20 +19,7 @@ public class GetUserUseCase {
 
         User user = getUserValidator.validate(userId);
 
-        return toResult(user);
-    }
-
-
-    // PRIVATE METHODS
-    private GetUserResult toResult(User user) {
-        return new GetUserResult(
-            user.getId(),
-            user.getFullName(),
-            user.getEmail(),
-            user.getPhoneNumber(),
-            user.isActive(),
-            user.getCreatedAt()
-        );
+        return GetUserMapper.toResult(user);
     }
 
 }

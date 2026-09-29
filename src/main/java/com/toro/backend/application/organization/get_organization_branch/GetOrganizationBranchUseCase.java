@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toro.backend.infrastructure.database.models.OrganizationBranch;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationBranchMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,19 +18,7 @@ public class GetOrganizationBranchUseCase {
     public GetOrganizationBranchResult execute(Long organizationBranchId) {
         OrganizationBranch organizationBranch = getOrganizationBranchValidator.validate(organizationBranchId);
 
-        return toResult(organizationBranch);
-    }
-
-    // PRIVATE METHODS
-    private GetOrganizationBranchResult toResult(OrganizationBranch organizationBranch) {
-        return new GetOrganizationBranchResult(
-            organizationBranch.getId(),
-            organizationBranch.getCountry(),
-            organizationBranch.getAddress(),
-            organizationBranch.getBranchType(),
-            organizationBranch.getCreatedAt(),
-            organizationBranch.getUpdatedAt()
-        );
+        return GetOrganizationBranchMapper.toResult(organizationBranch);
     }
 
 }

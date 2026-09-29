@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.UserRepository;
+import com.toro.backend.infrastructure.mapper.user.UpdateUserMapper;
 import com.toro.backend.presentation.user.request.UpdateUserRequest;
 
 import jakarta.transaction.Transactional;
@@ -23,28 +24,15 @@ public class UpdateUserUseCase {
     public UpdateUserResult execute(Long userId, UpdateUserRequest request) {
         User user = updateUserValidator.validate(userId, request);
 
-        user.setFullName(request.fullName());
-        user.setEmail(request.email());
-        user.setPhoneNumber(request.phoneNumber());
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setActive(request.isActive());
+        UpdateUserMapper.toModel(
+            request,
+            user,
+            passwordEncoder.encode(request.password())
+        );
 
         User savedUser = userRepository.save(user);
 
-        return toResult(savedUser);
-    }
-
-
-    // PRIVATE METHODS
-    private UpdateUserResult toResult(User user) {
-        return new UpdateUserResult(
-            user.getId(),
-            user.getFullName(),
-            user.getEmail(),
-            user.getPhoneNumber(),
-            user.isActive(),
-            user.getCreatedAt()
-        );
+        return UpdateUserMapper.toResult(savedUser);
     }
 
 }

@@ -3,7 +3,6 @@ package com.toro.backend.application.authentication.login;
 import java.time.Instant;
 
 import com.toro.backend.infrastructure.database.enums.AppRole;
-import com.toro.backend.infrastructure.database.models.User;
 
 public record LoginResult(
     String accessToken,
@@ -19,16 +18,6 @@ public record LoginResult(
         String phoneNumber,
         AppRole role
     ) {
-
-        public static LoginUserResult from(User user) {
-            return new LoginUserResult(
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getRole()
-            );
-        }
 
     }
 

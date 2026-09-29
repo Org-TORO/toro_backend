@@ -9,6 +9,7 @@ import com.toro.backend.infrastructure.database.models.LoginSession;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;
 import com.toro.backend.infrastructure.exception.InvalidRefreshTokenException;
+import com.toro.backend.infrastructure.mapper.authentication.RefreshTokenMapper;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -73,11 +74,11 @@ public class RefreshTokenUseCase {
 
         loginSessionRepository.save(currentLoginSession);
 
-        return new RefreshTokenResult(
-                newAccessToken,
-                newRefreshToken,
-                refreshTokenExpiresAt,
-                RefreshTokenResult.RefreshTokenUserResult.from(user)
+        return RefreshTokenMapper.toResult(
+            newAccessToken,
+            newRefreshToken,
+            refreshTokenExpiresAt,
+            user
         );
     }
 

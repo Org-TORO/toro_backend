@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.toro.backend.infrastructure.database.models.LoginSession;
 import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.LoginSessionRepository;
+import com.toro.backend.infrastructure.mapper.authentication.LoginMapper;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
 
@@ -47,11 +48,11 @@ public class LoginUseCase {
         saveLoginSession(user, hashedRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
 
         
-        return new LoginResult(
-                accessToken,
-                refreshToken,
-                refreshTokenExpiresAt,
-                LoginResult.LoginUserResult.from(user)
+        return LoginMapper.toResult(
+            accessToken,
+            refreshToken,
+            refreshTokenExpiresAt,
+            user
         );
     }
 

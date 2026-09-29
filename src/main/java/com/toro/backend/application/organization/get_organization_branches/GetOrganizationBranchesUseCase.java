@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toro.backend.infrastructure.database.models.Organization;
-import com.toro.backend.infrastructure.database.models.OrganizationBranch;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationBranchesMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,20 +22,8 @@ public class GetOrganizationBranchesUseCase {
 
         return organization.getBranches()
             .stream()
-            .map(this::toResult)
+            .map(GetOrganizationBranchesMapper::toResult)
             .toList();
-    }
-
-    // PRIVATE METHODS
-    private GetOrganizationBranchesResult toResult(OrganizationBranch organizationBranch) {
-        return new GetOrganizationBranchesResult(
-            organizationBranch.getId(),
-            organizationBranch.getCountry(),
-            organizationBranch.getAddress(),
-            organizationBranch.getBranchType(),
-            organizationBranch.getCreatedAt(),
-            organizationBranch.getUpdatedAt()
-        );
     }
 
 }

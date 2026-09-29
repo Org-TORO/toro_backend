@@ -8,6 +8,7 @@ import com.toro.backend.infrastructure.database.enums.OrganizationType;
 import com.toro.backend.infrastructure.database.models.Organization;
 import com.toro.backend.infrastructure.database.repository.OrganizationRepository;
 import com.toro.backend.infrastructure.exception.BusinessValidationException;
+import com.toro.backend.infrastructure.mapper.organization.SearchOrganizationsMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +23,7 @@ public class SearchOrganizationsUseCase {
         if (isBlank(field) || isBlank(value)) {
             return organizationRepository.findAll()
                 .stream()
-                .map(this::toResult)
+                .map(SearchOrganizationsMapper::toResult)
                 .toList();
         }
 
@@ -35,7 +36,7 @@ public class SearchOrganizationsUseCase {
 
         return organizations
             .stream()
-            .map(this::toResult)
+            .map(SearchOrganizationsMapper::toResult)
             .toList();
     }
 
@@ -63,19 +64,6 @@ public class SearchOrganizationsUseCase {
         } catch (IllegalArgumentException ex) {
             throw new BusinessValidationException("Invalid organization type.");
         }
-    }
-
-    private SearchOrganizationsResult toResult(Organization organization) {
-        return new SearchOrganizationsResult(
-            organization.getId(),
-            organization.getOrganizationCode(),
-            organization.getOrganizationName(),
-            organization.getOrganizationType(),
-            organization.getTaxCode(),
-            organization.getBlockchainWallet(),
-            organization.getCreatedAt(),
-            organization.getUpdatedAt()
-        );
     }
 
 }

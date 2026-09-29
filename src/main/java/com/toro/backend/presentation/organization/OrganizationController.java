@@ -13,34 +13,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.toro.backend.application.organization.create_organization.CreateOrganizationResult;
 import com.toro.backend.application.organization.create_organization.CreateOrganizationUseCase;
-import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchResult;
 import com.toro.backend.application.organization.create_organization_branch.CreateOrganizationBranchUseCase;
-import com.toro.backend.application.organization.add_organization_member.AddOrganizationMemberResult;
 import com.toro.backend.application.organization.add_organization_member.AddOrganizationMemberUseCase;
 import com.toro.backend.application.organization.delete_organization.DeleteOrganizationUseCase;
 import com.toro.backend.application.organization.delete_organization_branch.DeleteOrganizationBranchUseCase;
-import com.toro.backend.application.organization.get_organization.GetOrganizationResult;
 import com.toro.backend.application.organization.get_organization.GetOrganizationUseCase;
-import com.toro.backend.application.organization.get_organization_branch.GetOrganizationBranchResult;
 import com.toro.backend.application.organization.get_organization_branch.GetOrganizationBranchUseCase;
-import com.toro.backend.application.organization.get_organization_branches.GetOrganizationBranchesResult;
 import com.toro.backend.application.organization.get_organization_branches.GetOrganizationBranchesUseCase;
-import com.toro.backend.application.organization.get_organization_members.GetOrganizationMembersResult;
 import com.toro.backend.application.organization.get_organization_members.GetOrganizationMembersUseCase;
-import com.toro.backend.application.organization.get_organizations.GetOrganizationsResult;
 import com.toro.backend.application.organization.get_organizations.GetOrganizationsUseCase;
 import com.toro.backend.application.organization.remove_organization_member.RemoveOrganizationMemberUseCase;
-import com.toro.backend.application.organization.search_organizations.SearchOrganizationsResult;
 import com.toro.backend.application.organization.search_organizations.SearchOrganizationsUseCase;
-import com.toro.backend.application.organization.update_organization.UpdateOrganizationResult;
 import com.toro.backend.application.organization.update_organization.UpdateOrganizationUseCase;
-import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchResult;
 import com.toro.backend.application.organization.update_organization_branch.UpdateOrganizationBranchUseCase;
-import com.toro.backend.application.organization.update_organization_member.UpdateOrganizationMemberResult;
 import com.toro.backend.application.organization.update_organization_member.UpdateOrganizationMemberUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.infrastructure.mapper.organization.AddOrganizationMemberMapper;
+import com.toro.backend.infrastructure.mapper.organization.CreateOrganizationBranchMapper;
+import com.toro.backend.infrastructure.mapper.organization.CreateOrganizationMapper;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationBranchMapper;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationBranchesMapper;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationMapper;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationMembersMapper;
+import com.toro.backend.infrastructure.mapper.organization.GetOrganizationsMapper;
+import com.toro.backend.infrastructure.mapper.organization.SearchOrganizationsMapper;
+import com.toro.backend.infrastructure.mapper.organization.UpdateOrganizationBranchMapper;
+import com.toro.backend.infrastructure.mapper.organization.UpdateOrganizationMapper;
+import com.toro.backend.infrastructure.mapper.organization.UpdateOrganizationMemberMapper;
 import com.toro.backend.presentation.organization.request.AddOrganizationMemberRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationBranchRequest;
 import com.toro.backend.presentation.organization.request.CreateOrganizationRequest;
@@ -94,7 +94,7 @@ public class OrganizationController {
     public ResponseEntity<SuccessResponse<List<GetOrganizationsResponse>>> getOrganizations() {
         List<GetOrganizationsResponse> response = getOrganizationsUseCase.execute()
             .stream()
-            .map(this::toGetOrganizationsResponse)
+            .map(GetOrganizationsMapper::toResponse)
             .toList();
 
         return ResponseEntity.ok(
@@ -110,7 +110,7 @@ public class OrganizationController {
     ) {
         List<SearchOrganizationsResponse> response = searchOrganizationsUseCase.execute(field, value)
             .stream()
-            .map(this::toSearchOrganizationsResponse)
+            .map(SearchOrganizationsMapper::toResponse)
             .toList();
 
         return ResponseEntity.ok(
@@ -124,7 +124,7 @@ public class OrganizationController {
         @RequestParam ("organization_id")
         @NotNull(message = "Organization id is required") Long organizationId
     ) {
-        GetOrganizationResponse response = toGetOrganizationResponse(getOrganizationUseCase.execute(organizationId));
+        GetOrganizationResponse response = GetOrganizationMapper.toResponse(getOrganizationUseCase.execute(organizationId));
 
         return ResponseEntity.ok(
             SuccessResponse.success("Get organization successfully", response)
@@ -136,7 +136,7 @@ public class OrganizationController {
     public ResponseEntity<SuccessResponse<CreateOrganizationResponse>> createOrganization(
         @Valid @RequestBody CreateOrganizationRequest request
     ) {
-        CreateOrganizationResponse response = toCreateOrganizationResponse(createOrganizationUseCase.execute(request));
+        CreateOrganizationResponse response = CreateOrganizationMapper.toResponse(createOrganizationUseCase.execute(request));
 
         return ResponseEntity.ok(
             SuccessResponse.success("Create organization successfully", response)
@@ -150,7 +150,9 @@ public class OrganizationController {
         @NotNull(message = "Organization id is required") Long organizationId,
         @Valid @RequestBody UpdateOrganizationRequest request
     ) {
-        UpdateOrganizationResponse response = toUpdateOrganizationResponse(updateOrganizationUseCase.execute(organizationId, request));
+        UpdateOrganizationResponse response = UpdateOrganizationMapper.toResponse(
+            updateOrganizationUseCase.execute(organizationId, request)
+        );
 
         return ResponseEntity.ok(
             SuccessResponse.success("Update organization successfully", response)
@@ -180,7 +182,7 @@ public class OrganizationController {
     ) {
         List<GetOrganizationBranchesResponse> response = getOrganizationBranchesUseCase.execute(organizationId)
             .stream()
-            .map(this::toGetOrganizationBranchesResponse)
+            .map(GetOrganizationBranchesMapper::toResponse)
             .toList();
 
         return ResponseEntity.ok(
@@ -194,7 +196,7 @@ public class OrganizationController {
         @RequestParam("organization_branch_id")
         @NotNull(message = "Organization branch id is required") Long organizationBranchId
     ) {
-        GetOrganizationBranchResponse response = toGetOrganizationBranchResponse(
+        GetOrganizationBranchResponse response = GetOrganizationBranchMapper.toResponse(
             getOrganizationBranchUseCase.execute(organizationBranchId)
         );
 
@@ -210,7 +212,7 @@ public class OrganizationController {
         @NotNull(message = "Organization id is required") Long organizationId,
         @Valid @RequestBody CreateOrganizationBranchRequest request
     ) {
-        CreateOrganizationBranchResponse response = toCreateOrganizationBranchResponse(
+        CreateOrganizationBranchResponse response = CreateOrganizationBranchMapper.toResponse(
             createOrganizationBranchUseCase.execute(organizationId, request)
         );
 
@@ -226,7 +228,7 @@ public class OrganizationController {
         @NotNull(message = "Organization branch id is required") Long organizationBranchId,
         @Valid @RequestBody UpdateOrganizationBranchRequest request
     ) {
-        UpdateOrganizationBranchResponse response = toUpdateOrganizationBranchResponse(
+        UpdateOrganizationBranchResponse response = UpdateOrganizationBranchMapper.toResponse(
             updateOrganizationBranchUseCase.execute(organizationBranchId, request)
         );
 
@@ -258,7 +260,7 @@ public class OrganizationController {
     ) {
         List<GetOrganizationMembersResponse> response = getOrganizationMembersUseCase.execute(organizationBranchId)
             .stream()
-            .map(this::toGetOrganizationMembersResponse)
+            .map(GetOrganizationMembersMapper::toResponse)
             .toList();
 
         return ResponseEntity.ok(
@@ -273,7 +275,7 @@ public class OrganizationController {
         @NotNull(message = "Organization branch id is required") Long organizationBranchId,
         @Valid @RequestBody AddOrganizationMemberRequest request
     ) {
-        AddOrganizationMemberResponse response = toAddOrganizationMemberResponse(
+        AddOrganizationMemberResponse response = AddOrganizationMemberMapper.toResponse(
             addOrganizationMemberUseCase.execute(organizationBranchId, request)
         );
 
@@ -289,7 +291,7 @@ public class OrganizationController {
         @NotNull(message = "Member id is required") Long memberId,
         @Valid @RequestBody UpdateOrganizationMemberRequest request
     ) {
-        UpdateOrganizationMemberResponse response = toUpdateOrganizationMemberResponse(
+        UpdateOrganizationMemberResponse response = UpdateOrganizationMemberMapper.toResponse(
             updateOrganizationMemberUseCase.execute(memberId, request)
         );
 
@@ -310,160 +312,4 @@ public class OrganizationController {
             SuccessResponse.successMessage("Remove organization member successfully")
         );
     }
-    
-
-
-    // PRIVATE METHODS
-    private CreateOrganizationResponse toCreateOrganizationResponse(CreateOrganizationResult result) {
-        return new CreateOrganizationResponse(
-            result.id(),
-            result.organizationCode(),
-            result.organizationName(),
-            result.organizationType(),
-            result.taxCode(),
-            result.blockchainWallet(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private UpdateOrganizationResponse toUpdateOrganizationResponse(UpdateOrganizationResult result) {
-        return new UpdateOrganizationResponse(
-            result.id(),
-            result.organizationCode(),
-            result.organizationName(),
-            result.organizationType(),
-            result.taxCode(),
-            result.blockchainWallet(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private GetOrganizationResponse toGetOrganizationResponse(GetOrganizationResult result) {
-        return new GetOrganizationResponse(
-            result.id(),
-            result.organizationCode(),
-            result.organizationName(),
-            result.organizationType(),
-            result.taxCode(),
-            result.blockchainWallet(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private GetOrganizationsResponse toGetOrganizationsResponse(GetOrganizationsResult result) {
-        return new GetOrganizationsResponse(
-            result.id(),
-            result.organizationCode(),
-            result.organizationName(),
-            result.organizationType(),
-            result.taxCode(),
-            result.blockchainWallet(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private SearchOrganizationsResponse toSearchOrganizationsResponse(SearchOrganizationsResult result) {
-        return new SearchOrganizationsResponse(
-            result.id(),
-            result.organizationCode(),
-            result.organizationName(),
-            result.organizationType(),
-            result.taxCode(),
-            result.blockchainWallet(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-
-    private GetOrganizationBranchesResponse toGetOrganizationBranchesResponse(GetOrganizationBranchesResult result) {
-        return new GetOrganizationBranchesResponse(
-            result.id(),
-            result.country(),
-            result.address(),
-            result.branchType(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private GetOrganizationBranchResponse toGetOrganizationBranchResponse(GetOrganizationBranchResult result) {
-        return new GetOrganizationBranchResponse(
-            result.id(),
-            result.country(),
-            result.address(),
-            result.branchType(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private CreateOrganizationBranchResponse toCreateOrganizationBranchResponse(CreateOrganizationBranchResult result) {
-        return new CreateOrganizationBranchResponse(
-            result.id(),
-            result.country(),
-            result.address(),
-            result.branchType(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private UpdateOrganizationBranchResponse toUpdateOrganizationBranchResponse(UpdateOrganizationBranchResult result) {
-        return new UpdateOrganizationBranchResponse(
-            result.id(),
-            result.country(),
-            result.address(),
-            result.branchType(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private GetOrganizationMembersResponse toGetOrganizationMembersResponse(GetOrganizationMembersResult result) {
-        return new GetOrganizationMembersResponse(
-            result.userId(),
-            result.memberId(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.organizationRole(),
-            result.organizationDepartment(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private AddOrganizationMemberResponse toAddOrganizationMemberResponse(AddOrganizationMemberResult result) {
-        return new AddOrganizationMemberResponse(
-            result.userId(),
-            result.memberId(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.organizationRole(),
-            result.organizationDepartment(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
-    private UpdateOrganizationMemberResponse toUpdateOrganizationMemberResponse(UpdateOrganizationMemberResult result) {
-        return new UpdateOrganizationMemberResponse(
-            result.userId(),
-            result.memberId(),
-            result.fullName(),
-            result.email(),
-            result.phoneNumber(),
-            result.organizationRole(),
-            result.organizationDepartment(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
-
 }

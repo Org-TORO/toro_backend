@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.enums.AppRole;
-import com.toro.backend.infrastructure.database.models.User;
 import com.toro.backend.infrastructure.database.repository.UserRepository;
+import com.toro.backend.infrastructure.mapper.user.GetUsersMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,21 +19,8 @@ public class GetUsersUseCase {
     public List<GetUsersResult> execute() {
         return userRepository.findByRoleNot(AppRole.ADMIN)
             .stream()
-            .map(this::toResult)
+            .map(GetUsersMapper::toResult)
             .toList();
-    }
-
-
-    // PRIVATE METHODS
-    private GetUsersResult toResult(User user) {
-        return new GetUsersResult(
-            user.getId(),
-            user.getFullName(),
-            user.getEmail(),
-            user.getPhoneNumber(),
-            user.isActive(),
-            user.getCreatedAt()
-        );
     }
 
 }

@@ -10,6 +10,9 @@ import com.toro.backend.application.authentication.login.LoginUseCase;
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenResult;
 import com.toro.backend.application.authentication.refresh_token.RefreshTokenUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.infrastructure.mapper.authentication.BootstrapTokenMapper;
+import com.toro.backend.infrastructure.mapper.authentication.LoginMapper;
+import com.toro.backend.infrastructure.mapper.authentication.RefreshTokenMapper;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
 import com.toro.backend.presentation.authentication.request.RefreshTokenRequest;
 import com.toro.backend.presentation.authentication.response.BootstrapTokenResponse;
@@ -54,11 +57,7 @@ public class AuthenticationController {
             .body(
                 SuccessResponse.success(
                     "Login successfully",
-                    new LoginResponse(
-                        result.accessToken(),
-                        result.refreshToken(),
-                        LoginResponse.LoginUserResponse.from(result.user())
-                    )
+                    LoginMapper.toResponse(result)
                 )
             );
     }
@@ -88,7 +87,7 @@ public class AuthenticationController {
             .body(
                 SuccessResponse.success(
                     "Bootstrap token successfully",
-                    new BootstrapTokenResponse(result.accessToken())
+                    BootstrapTokenMapper.toResponse(result)
                 )
             );
     }
@@ -106,11 +105,7 @@ public class AuthenticationController {
             .body(
                 SuccessResponse.success(
                     "Refresh token successfully",
-                    new RefreshTokenResponse(
-                        result.accessToken(),
-                        result.refreshToken(),
-                        RefreshTokenResponse.RefreshTokenUserResponse.from(result.user())
-                    )
+                    RefreshTokenMapper.toResponse(result)
                 )
             );
     }

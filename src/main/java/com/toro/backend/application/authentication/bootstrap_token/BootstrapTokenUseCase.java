@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 
 import com.toro.backend.infrastructure.database.models.LoginSession;
+import com.toro.backend.infrastructure.mapper.authentication.BootstrapTokenMapper;
 import com.toro.backend.infrastructure.security.jwt.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class BootstrapTokenUseCase {
             Instant.now(), 
             currentAccessTokenExpiresAt);
 
-        return new BootstrapTokenResult(
+        return BootstrapTokenMapper.toResult(
             newAccessToken,
             refreshToken,
             currentLoginSession.getRefreshExpiresAt()
