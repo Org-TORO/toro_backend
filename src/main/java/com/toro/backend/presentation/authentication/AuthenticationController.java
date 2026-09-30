@@ -13,6 +13,7 @@ import com.toro.backend.infrastructure.api.SuccessResponse;
 import com.toro.backend.infrastructure.mapper.authentication.BootstrapTokenMapper;
 import com.toro.backend.infrastructure.mapper.authentication.LoginMapper;
 import com.toro.backend.infrastructure.mapper.authentication.RefreshTokenMapper;
+import com.toro.backend.presentation.authentication.request.BootstrapTokenRequest;
 import com.toro.backend.presentation.authentication.request.LoginRequest;
 import com.toro.backend.presentation.authentication.request.RefreshTokenRequest;
 import com.toro.backend.presentation.authentication.response.BootstrapTokenResponse;
@@ -22,14 +23,7 @@ import com.toro.backend.presentation.authentication.response.RefreshTokenRespons
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Duration;
-import java.time.Instant;
-
-import org.springframework.boot.web.server.Cookie.SameSite;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -64,26 +58,13 @@ public class AuthenticationController {
 
     @PostMapping("/bootstrap-token")
     public ResponseEntity<SuccessResponse<BootstrapTokenResponse>> bootstrapToken(
-        @CookieValue(
-            name = "refreshToken",
-            required = false
-        ) String refreshToken
+        @Valid @RequestBody BootstrapTokenRequest request
     ) {
 
-        BootstrapTokenResult result = bootstrapTokenUseCase.execute(refreshToken);
-        
-        ResponseCookie refreshTokenCookie = ResponseCookie
-            .from("refreshToken", result.refreshToken())
-            .httpOnly(true)
-            .secure(false) 
-            .sameSite(SameSite.LAX.toString())
-            .path("/api/auth")
-            .maxAge(Duration.between(Instant.now(), result.refreshTokenExpiresAt()))
-            .build();
+        BootstrapTokenResult result = bootstrapTokenUseCase.execute(request.refreshToken());
 
         return ResponseEntity
             .ok()
-            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(
                 SuccessResponse.success(
                     "Bootstrap token successfully",
