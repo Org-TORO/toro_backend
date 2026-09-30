@@ -15,6 +15,7 @@ public record LoginResponse(
         String email,
         String phoneNumber,
         AppRole role,
+        Long memberId,
         OrganizationRole organizationRole,
         Long organizationId
     ) {

@@ -37,6 +37,7 @@ public final class LoginMapper {
             user.getEmail(),
             user.getPhoneNumber(),
             user.getRole(),
+            organizationMember == null ? null : organizationMember.getId(),
             organizationMember == null ? null : organizationMember.getOrganizationRole(),
             organizationMember == null ? null : organizationMember.getOrganization().getId()
         );
@@ -57,6 +58,7 @@ public final class LoginMapper {
             user.email(),
             user.phoneNumber(),
             user.role(),
+            user.memberId(),
             user.organizationRole(),
             user.organizationId()
         );

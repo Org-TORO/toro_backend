@@ -18,6 +18,7 @@ public record LoginResult(
         String email,
         String phoneNumber,
         AppRole role,
+        Long memberId,
         OrganizationRole organizationRole,
         Long organizationId
     ) {

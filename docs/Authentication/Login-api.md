@@ -61,6 +61,7 @@ Body:
       "email": "user@example.com",
       "phoneNumber": "0900000000",
       "role": "ADMIN",
+      "memberId": null,
       "organizationRole": null,
       "organizationId": null
     }
@@ -82,6 +83,7 @@ Body:
 | `data.user.email` | `string` | Authenticated user's email address. |
 | `data.user.phoneNumber` | `string` | Authenticated user's phone number. |
 | `data.user.role` | `string` | Authenticated user's application role. |
+| `data.user.memberId` | `number \| null` | Authenticated user's organization member ID, or `null` for admin users. |
 | `data.user.organizationRole` | `string \| null` | Authenticated user's organization role, or `null` for admin users. |
 | `data.user.organizationId` | `number \| null` | Authenticated user's organization ID, or `null` for admin users. |
 | `timestamp` | `string` | Response timestamp in ISO-8601 format. |
