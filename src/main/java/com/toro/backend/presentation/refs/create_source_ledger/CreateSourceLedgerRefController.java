@@ -3,16 +3,21 @@ package com.toro.backend.presentation.refs.create_source_ledger;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toro.backend.infrastructure.api.SuccessResponse;
-import com.toro.backend.infrastructure.database.enums.OrganizationRole;
+import com.toro.backend.infrastructure.database.models.Organization;
+import com.toro.backend.infrastructure.database.models.OrganizationMember;
 import com.toro.backend.infrastructure.database.repository.OrganizationMemberRepository;
 import com.toro.backend.infrastructure.database.repository.VesselRepository;
+import com.toro.backend.infrastructure.exception.BusinessValidationException;
+import com.toro.backend.infrastructure.exception.UnauthenticatedException;
+import com.toro.backend.infrastructure.security.jwt.JwtService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,10 +27,16 @@ public class CreateSourceLedgerRefController {
 
     private final VesselRepository vesselRepository;
     private final OrganizationMemberRepository organizationMemberRepository;
+    private final JwtService jwtService;
 
-    @GetMapping("/get-vessels")
-    public ResponseEntity<SuccessResponse<List<?>>> getVessels() {
-        List<?> response = vesselRepository.findAll()
+    @GetMapping("/refs")
+    public ResponseEntity<SuccessResponse<Object>> getRefs(
+        Authentication authentication,
+        HttpServletRequest request
+    ) {
+        Organization organization = findCurrentOrganization(authentication, request);
+
+        List<?> vesselRefs = vesselRepository.findAll()
             .stream()
             .map(vessel -> new Object() {
                 public final Long id = vessel.getId();
@@ -37,42 +48,68 @@ public class CreateSourceLedgerRefController {
             })
             .toList();
 
+        Object response = new Object() {
+            public final Long organizationId = organization.getId();
+            public final String organizationName = organization.getOrganizationName();
+            public final List<?> vessels = vesselRefs;
+        };
+
         return ResponseEntity.ok(
-            SuccessResponse.success("Get vessels successfully", response)
+            SuccessResponse.success("Get create source ledger refs successfully", response)
         );
     }
 
-    @GetMapping("/get-main-staffs")
-    public ResponseEntity<SuccessResponse<List<?>>> getMainStaffs(
-        @RequestParam(value = "search", required = false) String search
-    ) {
-        List<?> response = organizationMemberRepository.searchByOrganizationRoleAndUser(
-                OrganizationRole.MAIN_STAFF,
-                normalizeSearchValue(search)
-            )
-            .stream()
-            .map(member -> new Object() {
-                public final Long id = member.getId();
-                public final Long userId = member.getUser().getId();
-                public final String fullName = member.getUser().getFullName();
-                public final String email = member.getUser().getEmail();
-                public final String phoneNumber = member.getUser().getPhoneNumber();
-                public final Long organizationId = member.getOrganization().getId();
-                public final String organizationName = member.getOrganization().getOrganizationName();
-            })
-            .toList();
+    private Organization findCurrentOrganization(Authentication authentication, HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(authentication, request);
 
-        return ResponseEntity.ok(
-            SuccessResponse.success("Get main staffs successfully", response)
-        );
+        OrganizationMember organizationMember = organizationMemberRepository
+            .findFirstByUserIdOrderByIdAsc(userId)
+            .orElseThrow(() -> new BusinessValidationException("Current organization not found."));
+
+        return organizationMember.getOrganization();
     }
 
-    private String normalizeSearchValue(String value) {
-        if (value == null || value.isBlank()) {
-            return "";
+    private Long getAuthenticatedUserId(Authentication authentication, HttpServletRequest request) {
+        if (authentication == null) {
+            throw new UnauthenticatedException("User is not authenticated.");
         }
 
-        return value.trim();
+        Object principal = authentication.getPrincipal();
+        if (principal == null) {
+            return getAuthenticatedUserIdFromToken(request);
+        }
+
+        if (principal instanceof Long userId) {
+            return userId;
+        }
+
+        if (principal instanceof Number userId) {
+            return userId.longValue();
+        }
+
+        if (principal instanceof String userId) {
+            try {
+                return Long.parseLong(userId);
+            } catch (NumberFormatException ex) {
+                throw new UnauthenticatedException("Authenticated user is invalid.");
+            }
+        }
+
+        throw new UnauthenticatedException("Authenticated user is invalid.");
+    }
+
+    private Long getAuthenticatedUserIdFromToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new UnauthenticatedException("User is not authenticated.");
+        }
+
+        String userId = jwtService.parseClaims(authorization.substring("Bearer ".length())).getSubject();
+        try {
+            return Long.parseLong(userId);
+        } catch (NumberFormatException ex) {
+            throw new UnauthenticatedException("Authenticated user is invalid.");
+        }
     }
 
 }

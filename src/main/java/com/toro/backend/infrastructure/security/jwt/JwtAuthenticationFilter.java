@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.getWriter().write(
                 "{" +
                         "\"message\":\"" + escapeJson(message) + "\"," +
-                        "\"code\":\"" + "INVALID_ACCESS_TOKEN" + "\"," +
+                        "\"code\":\"" + "UNAUTHENTICATED_ERROR" + "\"," +
                         "\"errors\":\"" + escapeJson(message) + "\"," +
                         "\"timestamp\":\"" + Instant.now() + "\"" +
                 "}");
