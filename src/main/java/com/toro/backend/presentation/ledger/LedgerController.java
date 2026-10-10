@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.toro.backend.application.ledger.create_source_assignment.CreateSourceAssignmentUseCase;
 import com.toro.backend.application.ledger.create_source_ledger.CreateSourceLedgerUseCase;
 import com.toro.backend.application.ledger.get_source_ledgers.GetSourceLedgersUseCase;
 import com.toro.backend.infrastructure.api.SuccessResponse;
+import com.toro.backend.infrastructure.mapper.ledger.CreateSourceAssignmentMapper;
 import com.toro.backend.infrastructure.mapper.ledger.CreateSourceLedgerMapper;
 import com.toro.backend.infrastructure.mapper.ledger.GetSourceLedgersMapper;
+import com.toro.backend.presentation.ledger.request.CreateSourceAssignmentRequest;
 import com.toro.backend.presentation.ledger.request.CreateSourceLedgerRequest;
+import com.toro.backend.presentation.ledger.response.CreateSourceAssignmentResponse;
 import com.toro.backend.presentation.ledger.response.CreateSourceLedgerResponse;
 import com.toro.backend.presentation.ledger.response.GetSourceLedgersResponse;
 
@@ -27,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class LedgerController {
 
     private final CreateSourceLedgerUseCase createSourceLedgerUseCase;
+    private final CreateSourceAssignmentUseCase createSourceAssignmentUseCase;
     private final GetSourceLedgersUseCase getSourceLedgersUseCase;
 
     @GetMapping("/get-source-ledgers")
@@ -51,6 +56,19 @@ public class LedgerController {
 
         return ResponseEntity.ok(
             SuccessResponse.success("Create source ledger successfully", response)
+        );
+    }
+
+    @PostMapping("/create-source-assignment")
+    public ResponseEntity<SuccessResponse<CreateSourceAssignmentResponse>> createSourceAssignment(
+        @Valid @RequestBody CreateSourceAssignmentRequest request
+    ) {
+        CreateSourceAssignmentResponse response = CreateSourceAssignmentMapper.toResponse(
+            createSourceAssignmentUseCase.execute(request)
+        );
+
+        return ResponseEntity.ok(
+            SuccessResponse.success("Create source assignment successfully", response)
         );
     }
 
